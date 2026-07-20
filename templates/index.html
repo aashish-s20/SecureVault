@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureVault - Secure AES-256 Encryption & File Integrity Checker{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1 class="hero-title">Protect Your Data with Industry-Grade Cryptography</h1>
+    <p class="hero-subtitle">SecureVault provides client-centric file encryption, decryption, and integrity audit tools powered by zero-knowledge AES-256 and SHA-256 hashing algorithms.</p>
+    <div class="hero-buttons">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-cyan"><i class="fa-solid fa-user-shield"></i> Get Started Free</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline"><i class="fa-solid fa-key"></i> Access Dashboard</a>
+    </div>
+</div>
+
+<div class="features-grid">
+    <!-- Feature 1: AES Encryption -->
+    <div class="glass-panel feature-card">
+        <div class="feature-icon">
+            <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <h3>AES-256 Encryption</h3>
+        <p>Encrypt any file type in seconds. Key derivation is handled client-side in memory using PBKDF2HMAC, ensuring your password never reaches our files in plaintext.</p>
+    </div>
+
+    <!-- Feature 2: In-Memory Decryption -->
+    <div class="glass-panel feature-card">
+        <div class="feature-icon">
+            <i class="fa-solid fa-unlock-keyhole"></i>
+        </div>
+        <h3>Zero-Trust Decryption</h3>
+        <p>Upload encrypted vault files and type the password. Decryption happens purely in volatile memory. Plaintext files are streamed directly back and never saved on disk.</p>
+    </div>
+
+    <!-- Feature 3: SHA-256 Verification -->
+    <div class="glass-panel feature-card">
+        <div class="feature-icon">
+            <i class="fa-solid fa-barcode"></i>
+        </div>
+        <h3>Integrity Verifier</h3>
+        <p>Generate cryptographic fingerprints (SHA-256 hashes) for your files. Compare current states to detect even a single bit change in file data.</p>
+    </div>
+
+    <!-- Feature 4: Audit Trails -->
+    <div class="glass-panel feature-card">
+        <div class="feature-icon">
+            <i class="fa-solid fa-timeline"></i>
+        </div>
+        <h3>Operation Logs</h3>
+        <p>Keep track of all actions, dates, and calculated hashes. Complete database audit trails can be filtered, searched, deleted, and exported as CSV reports.</p>
+    </div>
+</div>
+{% endblock %}

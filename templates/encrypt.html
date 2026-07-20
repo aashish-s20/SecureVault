@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureVault - Encrypt File{% endblock %}
+
+{% block content %}
+<div class="glass-panel upload-card">
+    {% if success_data %}
+        <!-- Success State: Rendered after encryption completed -->
+        <div class="success-screen">
+            <div class="success-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <h2>Encryption Successful</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">The file has been encrypted using AES-256 and stored safely in the vault.</p>
+            
+            <div class="success-details">
+                <div class="detail-row">
+                    <span class="detail-lbl">Original File:</span>
+                    <span class="detail-val" style="color: var(--text-primary);">{{ success_data.orig_filename }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-lbl">Secure Vault File:</span>
+                    <span class="detail-val" style="color: var(--accent-cyan);">{{ success_data.enc_filename }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-lbl">Original Size:</span>
+                    <span class="detail-val">
+                        {% if success_data.file_size < 1024 %}
+                            {{ success_data.file_size }} Bytes
+                        {% elif success_data.file_size < 1024 * 1024 %}
+                            {{ "%.2f"|format(success_data.file_size / 1024) }} KB
+                        {% else %}
+                            {{ "%.2f"|format(success_data.file_size / (1024 * 1024)) }} MB
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                    <span class="detail-lbl">Original SHA-256 Hash:</span>
+                    <span class="detail-val" style="font-size: 0.8rem; text-align: left; max-width: 100%;">{{ success_data.sha256 }}</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; margin-top: 1rem;">
+                <a href="{{ url_for('download_file', history_id=success_data.history_id) }}" class="btn btn-cyan">
+                    <i class="fa-solid fa-download"></i> Download Encrypted File (.enc)
+                </a>
+                <div style="display: flex; gap: 1rem; width: 100%;">
+                    <a href="{{ url_for('encrypt') }}" class="btn btn-outline" style="flex: 1;">
+                        <i class="fa-solid fa-plus"></i> Encrypt Another
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="flex: 1; border-color: rgba(255,255,255,0.15); color: var(--text-primary);">
+                        <i class="fa-solid fa-house"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Upload Form State -->
+        <h2 style="margin-bottom: 0.5rem;"><i class="fa-solid fa-lock" style="color: var(--accent-cyan);"></i> Encrypt File</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Upload any file to protect it with client-centric AES-256 encryption.</p>
+        
+        <form id="upload-form" action="{{ url_for('encrypt') }}" method="POST" enctype="multipart/form-data">
+            <!-- Drag and Drop Dropzone -->
+            <div class="dropzone-area" id="dropzone">
+                <div class="dropzone-icon">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div class="dropzone-text">
+                    Drag and drop file here or <span>browse files</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Max file size: 50MB</p>
+                <input type="file" name="file" id="file-input" required>
+            </div>
+            
+            <!-- Dynamic Selected File Indicator -->
+            <div class="selected-file-badge" id="file-badge" style="margin-bottom: 1.5rem;">
+                <div class="selected-file-name" id="file-badge-name">file_name.txt</div>
+                <div class="badge badge-encrypt" id="file-badge-size">12 KB</div>
+            </div>
+            
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password" class="form-label">Encryption Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Create strong encryption key" required minlength="4">
+                <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    <i class="fa-solid fa-circle-info"></i> This key is required to decrypt your file later. SecureVault does not store this password.
+                </span>
+            </div>
+            
+            <!-- Upload Progress indicator -->
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-cyan" style="width: 100%; margin-top: 1rem;">
+                <i class="fa-solid fa-shield-halved"></i> Execute Encryption
+            </button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureVault - File Integrity Checker{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>File Integrity Workspace</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Monitor file changes and detect modifications using SHA-256 checksum comparison.</p>
+</div>
+
+{% if result %}
+    <!-- Verification Result Screen -->
+    <div class="glass-panel verify-result {% if result.status == 'verified' %}verified{% elif result.status == 'modified' %}modified{% endif %}" style="max-width: 700px; margin: 0 auto 2rem auto; border-width: 2px;">
+        <div class="verify-result-icon">
+            {% if result.status == 'verified' %}
+                <i class="fa-solid fa-circle-check"></i>
+            {% elif result.status == 'modified' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            {% else %}
+                <i class="fa-solid fa-circle-question" style="color: var(--accent-warning);"></i>
+            {% endif %}
+        </div>
+        
+        <h3 class="verify-result-title">
+            {% if result.status == 'verified' %}
+                File Verified (Intact)
+            {% elif result.status == 'modified' %}
+                File Modified (CORRUPT/CHANGED)
+            {% else %}
+                Hash Registry Miss
+            {% endif %}
+        </h3>
+        
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+            {% if result.status == 'verified' %}
+                The uploaded file matches the registered reference hash. The file integrity is intact.
+            {% elif result.status == 'modified' %}
+                WARNING: The file content has changed! The current checksum does not match the registered baseline.
+            {% else %}
+                No reference SHA-256 was registered for a file named "<strong>{{ checked_filename }}</strong>". Please register it first.
+            {% endif %}
+        </p>
+        
+        <div class="success-details verify-result-details" style="margin-top: 1rem;">
+            <div class="detail-row">
+                <span class="detail-lbl">File Examined:</span>
+                <span class="detail-val" style="color: var(--accent-cyan);">{{ checked_filename }}</span>
+            </div>
+            
+            {% if result.reference_hash %}
+                <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                    <span class="detail-lbl">Registered Reference Hash (SHA-256):</span>
+                    <span class="detail-val" style="font-size: 0.8rem; text-align: left; max-width: 100%; color: var(--accent-green);">{{ result.reference_hash }}</span>
+                </div>
+            {% endif %}
+            
+            <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                <span class="detail-lbl">Calculated Upload Hash (SHA-256):</span>
+                <span class="detail-val" style="font-size: 0.8rem; text-align: left; max-width: 100%; color: {% if result.status == 'verified' %}var(--accent-green){% else %}var(--accent-red){% endif %};">
+                    {{ result.current_hash }}
+                </span>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; width: 100%; margin-top: 1.5rem;">
+            <a href="{{ url_for('verify') }}" class="btn btn-cyan" style="flex: 1;">
+                <i class="fa-solid fa-redo"></i> Perform Another Check
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="flex: 1; border-color: rgba(255,255,255,0.15); color: var(--text-primary);">
+                <i class="fa-solid fa-house"></i> Control Panel
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Checker Workspace Grid (Always visible when not displaying checked results or below checked results) -->
+{% if not result %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+        
+        <!-- Column 1: Register reference -->
+        <div class="glass-panel" style="padding: 2.5rem 2rem;">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan);">
+                <i class="fa-solid fa-plus-circle"></i> 1. Register File
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Upload a trusted version of a file to generate and lock its reference SHA-256 fingerprint in SQLite.</p>
+            
+            <form action="{{ url_for('verify') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <input type="hidden" name="action" value="register">
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Upload Baseline File</label>
+                    <input type="file" name="file" class="form-control" required style="padding: 0.5rem;">
+                </div>
+                
+                <button type="submit" class="btn btn-cyan" style="width: 100%;">
+                    <i class="fa-solid fa-fingerprint"></i> Register Reference Hash
+                </button>
+            </form>
+        </div>
+        
+        <!-- Column 2: Check integrity -->
+        <div class="glass-panel" style="padding: 2.5rem 2rem; border-color: rgba(57, 255, 20, 0.15);">
+            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--accent-green);">
+                <i class="fa-solid fa-shield-halved"></i> 2. Verify File
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Upload a file to check if its contents have changed relative to its registered baseline hash.</p>
+            
+            <form action="{{ url_for('verify') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <input type="hidden" name="action" value="verify">
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Upload File to Verify</label>
+                    <input type="file" name="file" class="form-control" required style="padding: 0.5rem;">
+                </div>
+                
+                <button type="submit" class="btn btn-outline" style="width: 100%; border-color: var(--accent-green); color: var(--accent-green); background: rgba(57, 255, 20, 0.02);">
+                    <i class="fa-solid fa-circle-check"></i> Execute Integrity Audit
+                </button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Reference Hash Database Table -->
+<div class="glass-panel" style="padding: 2rem;">
+    <h3 style="margin-bottom: 1.25rem; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-database" style="color: var(--accent-cyan);"></i> Registered Integrity Baselines
+    </h3>
+    
+    {% if registered_files %}
+        <div class="table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Reference SHA-256 Checksum</th>
+                        <th>Registration Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in registered_files %}
+                        <tr>
+                            <td style="font-weight: 600; color: #fff;">{{ file.filename }}</td>
+                            <td class="td-mono" style="color: var(--accent-cyan);">{{ file.sha256_hash }}</td>
+                            <td style="color: var(--text-muted);">{{ file.created_at }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.2;"></i>
+            <p>No baseline hashes registered yet.</p>
+            <p style="font-size: 0.8rem;">Upload a baseline file above to secure its signature.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

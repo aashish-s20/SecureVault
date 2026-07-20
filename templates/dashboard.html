@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureVault - Workspace Dashboard{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>Security Control Panel</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Operational status and cryptographic metrics dashboard</p>
+</div>
+
+<!-- Dashboard Stats Grid -->
+<div class="dashboard-grid">
+    <!-- Encrypted Counter -->
+    <div class="glass-panel stat-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-val">{{ stats.total_encrypted }}</span>
+            <span class="stat-lbl">Encrypted Files</span>
+        </div>
+    </div>
+    
+    <!-- Decrypted Counter -->
+    <div class="glass-panel stat-card">
+        <div class="stat-icon green">
+            <i class="fa-solid fa-unlock"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-val">{{ stats.total_decrypted }}</span>
+            <span class="stat-lbl">Decrypted Files</span>
+        </div>
+    </div>
+    
+    <!-- Integrity Checker Counter -->
+    <div class="glass-panel stat-card">
+        <div class="stat-icon green">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-val">{{ stats.total_integrity_checks }}</span>
+            <span class="stat-lbl">Integrity Checks</span>
+        </div>
+    </div>
+    
+    <!-- Storage Counter -->
+    <div class="glass-panel stat-card">
+        <div class="stat-icon red">
+            <i class="fa-solid fa-hard-drive"></i>
+        </div>
+        <div class="stat-info">
+            {% set storage_mb = stats.storage_bytes / (1024 * 1024) %}
+            <span class="stat-val">{{ "%.2f"|format(storage_mb) }} MB</span>
+            <span class="stat-lbl">Vault Storage</span>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Main Workspace -->
+<div class="dashboard-main">
+    
+    <!-- Left Panel: Recent Operations -->
+    <div class="glass-panel dashboard-panel">
+        <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-timeline" style="color: var(--accent-cyan);"></i> Recent Operations</h3>
+            <a href="{{ url_for('history') }}" class="btn btn-outline btn-small"><i class="fa-solid fa-arrow-right"></i> Full History</a>
+        </div>
+        
+        {% if stats.recent_activity %}
+            <ul class="activity-list">
+                {% for act in stats.recent_activity %}
+                    {% set clean_op = act.operation|lower|replace('_', '-') %}
+                    <li class="activity-item {{ clean_op }}">
+                        <div class="activity-info">
+                            <span class="activity-name">{{ act.filename }}</span>
+                            <span class="activity-date">{{ act.timestamp }}</span>
+                        </div>
+                        <div>
+                            {% if act.operation == 'ENCRYPT' %}
+                                <span class="badge badge-encrypt">Encrypted</span>
+                            {% elif act.operation == 'DECRYPT' %}
+                                <span class="badge badge-decrypt">Decrypted</span>
+                            {% elif act.operation == 'REGISTER_HASH' %}
+                                <span class="badge badge-register-hash">Registered</span>
+                            {% elif act.operation == 'VERIFY_SUCCESS' %}
+                                <span class="badge badge-verify-success">Verified OK</span>
+                            {% elif act.operation == 'VERIFY_FAIL' %}
+                                <span class="badge badge-verify-fail">MODIFIED</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; color: var(--text-muted); text-align: center;">
+                <i class="fa-solid fa-shield" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>No recent actions registered.</p>
+                <p style="font-size: 0.85rem;">Encrypt or verify your first file to populate metrics.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Right Panel: Storage Status & Quick Tools -->
+    <div class="glass-panel dashboard-panel" style="min-height: auto;">
+        <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent-cyan);"></i> Allocation</h3>
+        </div>
+        
+        <div class="storage-bar-wrapper">
+            <div class="storage-details">
+                <span>Safe Storage Limit</span>
+                <span>50.00 MB</span>
+            </div>
+            
+            {% set pct = (stats.storage_bytes / (50 * 1024 * 1024)) * 100 %}
+            <div class="storage-progress">
+                <div class="storage-progress-bar" style="width: {{ [pct, 100]|min }}%"></div>
+            </div>
+            
+            <div class="storage-details" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                <span>Used: {{ "%.2f"|format(stats.storage_bytes / (1024 * 1024)) }} MB</span>
+                <span>{{ "%.2f"|format(pct) }}%</span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            <p style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">Quick Actions</p>
+            <a href="{{ url_for('encrypt') }}" class="btn btn-cyan" style="justify-content: flex-start;">
+                <i class="fa-solid fa-lock"></i> Encrypt New File
+            </a>
+            <a href="{{ url_for('decrypt') }}" class="btn btn-outline" style="justify-content: flex-start;">
+                <i class="fa-solid fa-key"></i> Decrypt Vault File
+            </a>
+            <a href="{{ url_for('verify') }}" class="btn btn-outline" style="justify-content: flex-start; border-color: var(--accent-green); color: var(--accent-green);">
+                <i class="fa-solid fa-circle-check"></i> Integrity Checker
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

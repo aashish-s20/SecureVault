@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureVault - Agent Login{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="glass-panel auth-card">
+        <h2 class="auth-title"><i class="fa-solid fa-user-shield" style="color: var(--accent-cyan);"></i> Access Portal</h2>
+        <p class="auth-subtitle">Verify identity to unlock your secure vault workspace</p>
+        
+        <form action="{{ url_for('auth.login') }}" method="POST">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn btn-cyan" style="width: 100%; margin-top: 1.5rem;">
+                <i class="fa-solid fa-unlock"></i> Decrypt Vault
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>New operative? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

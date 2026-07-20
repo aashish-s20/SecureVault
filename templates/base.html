@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SecureVault - Cryptographic Safe{% endblock %}</title>
+    
+    <!-- FontAwesome Icon Set -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Cyber Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="brand-text">
+                SECURE<span>VAULT</span>
+            </div>
+        </a>
+        
+        <ul class="nav-links">
+            {% if session.get('user_id') %}
+                <li class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                </li>
+                <li class="nav-item {% if request.endpoint == 'encrypt' %}active{% endif %}">
+                    <a href="{{ url_for('encrypt') }}"><i class="fa-solid fa-lock"></i> Encrypt</a>
+                </li>
+                <li class="nav-item {% if request.endpoint == 'decrypt' %}active{% endif %}">
+                    <a href="{{ url_for('decrypt') }}"><i class="fa-solid fa-key"></i> Decrypt</a>
+                </li>
+                <li class="nav-item {% if request.endpoint == 'verify' %}active{% endif %}">
+                    <a href="{{ url_for('verify') }}"><i class="fa-solid fa-circle-check"></i> Integrity</a>
+                </li>
+                <li class="nav-item {% if request.endpoint == 'history' %}active{% endif %}">
+                    <a href="{{ url_for('history') }}"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+                </li>
+            {% else %}
+                <li class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+                    <a href="{{ url_for('index') }}"><i class="fa-solid fa-house"></i> Home</a>
+                </li>
+            {% endif %}
+        </ul>
+        
+        <div class="nav-auth">
+            {% if session.get('user_id') %}
+                <span style="color: var(--text-muted); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-user-shield" style="color: var(--accent-cyan);"></i> {{ session.get('username') }}
+                </span>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-small"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-small"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-cyan btn-small"><i class="fa-solid fa-user-plus"></i> Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Flash Message Alerts -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {% if category == 'success' %}
+                                <i class="fa-solid fa-circle-check"></i>
+                            {% elif category == 'danger' %}
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Child Page Contents -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 <span>SecureVault</span> Cryptographic Operations Panel. All Rights Reserved. Powered by AES-256 & SHA-256.</p>
+    </footer>
+
+    <!-- Core Interactive Client Logic -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

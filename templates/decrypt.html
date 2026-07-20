@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}SecureVault - Decrypt File{% endblock %}
+
+{% block content %}
+<div class="glass-panel upload-card">
+    <h2 style="margin-bottom: 0.5rem;"><i class="fa-solid fa-key" style="color: var(--accent-cyan);"></i> Decrypt File</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Upload an encrypted vault file and supply the password to recover the plaintext data.</p>
+    
+    <form id="upload-form" action="{{ url_for('decrypt') }}" method="POST" enctype="multipart/form-data">
+        <!-- Drag and Drop Dropzone -->
+        <div class="dropzone-area" id="dropzone">
+            <div class="dropzone-icon">
+                <i class="fa-solid fa-file-shield"></i>
+            </div>
+            <div class="dropzone-text">
+                Drag and drop your <span>.enc file</span> here or browse
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Encrypted format only</p>
+            <input type="file" name="file" id="file-input" required>
+        </div>
+        
+        <!-- Dynamic Selected File Indicator -->
+        <div class="selected-file-badge" id="file-badge" style="margin-bottom: 1.5rem;">
+            <div class="selected-file-name" id="file-badge-name">file_name.enc</div>
+            <div class="badge badge-decrypt" id="file-badge-size">12 KB</div>
+        </div>
+        
+        <!-- Decryption Password -->
+        <div class="form-group">
+            <label for="password" class="form-label">Decryption Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter original password used to encrypt" required>
+        </div>
+        
+        <!-- Upload Progress indicator -->
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <button type="submit" class="btn btn-cyan" style="width: 100%; margin-top: 1rem;">
+            <i class="fa-solid fa-unlock"></i> Execute Decryption
+        </button>
+    </form>
+</div>
+{% endblock %}
