@@ -1,110 +1,225 @@
-# SecureVault 🛡️
+# 🔐 SecureVault
 
-SecureVault is a professional, high-performance cybersecurity web application that securely encrypts, decrypts, and verifies file integrity using modern cryptographic standards. Built using **Python (Flask)**, **SQLite**, **HTML5**, **CSS3 (Vanilla)**, and **JavaScript**.
-
----
-
-## 🌟 Key Features
-
-1. **User Authentication**: Secure register, login, and logout portals. Passwords are encrypted on register using secure hashing algorithms (PBKDF2 with SHA-256 salt iterations).
-2. **AES-256 File Encryption**: Encrypt any uploaded file up to 50MB. A unique 16-byte salt and Initialization Vector (IV) are generated for each operation. Encryption keys are derived using PBKDF2-HMAC-SHA256 with 100,000 iterations.
-3. **Zero-Trust Decryption**: Decrypt downloaded files by uploading them and inputting the matching password. Decryption occurs purely in volatile RAM, and the decrypted stream is piped directly to your web browser as a download attachment (never written to the server's disk).
-4. **SHA-256 Integrity Verification**: 
-   - **Register baseline**: Upload a file to lock its reference hash signature.
-   - **Check integrity**: Upload a file later to compare its signature. The system will flash a green **File Verified (Intact)** alert or a blinking red **File Modified (Changed)** warning.
-5. **Interactive Dashboard**: Track metrics including total encrypted files, decrypted files, integrity checks, storage allocation progress indicators, and real-time recent actions feeds.
-6. **Detailed Audit Trails**: Maintain complete logs of operations, original file names, sizes, dates, and SHA-256 hash signatures. Search logs, delete records, or export the history as a CSV spreadsheet.
-7. **Modern Cybersecurity UI**: Sleek obsidian dark theme featuring interactive glassmorphic panels, neon state colors (cyan, matrix-green, hot-pink), upload drag-and-drop dropzones, and dynamic progress bar animations.
+SecureVault is a beginner-friendly cybersecurity web application that provides secure file encryption, decryption, and integrity verification. Built with Python, Flask, SQLite, HTML, CSS, and JavaScript, it demonstrates practical cryptography concepts and secure file management through a modern web interface.
 
 ---
 
-## 📂 Project Directory Structure
+## ✨ Features
 
-```text
+### 🔒 File Encryption
+- Encrypt files using AES-256 encryption
+- Password-protected encryption
+- Secure encrypted file storage
+- Download encrypted files
+
+### 🔓 File Decryption
+- Decrypt encrypted files
+- Password verification
+- Secure file recovery
+- Graceful handling of incorrect passwords
+
+### 🛡️ File Integrity Verification
+- Generate SHA-256 hashes
+- Verify file integrity
+- Detect file modifications
+- Compare stored and generated hashes
+
+### 👤 User Authentication
+- User registration
+- Secure login
+- Password hashing
+- Session management
+
+### 📊 Dashboard
+- Total encrypted files
+- Total decrypted files
+- Total integrity checks
+- Recent user activity
+- Storage statistics
+
+### 📁 History
+- View all operations
+- Search records
+- Delete history
+- Export history (if implemented)
+
+---
+
+# 🛠️ Technologies Used
+
+- Python 3
+- Flask
+- SQLite
+- HTML5
+- CSS3
+- JavaScript
+- Cryptography Library
+- Bootstrap (if used)
+
+---
+
+# 📂 Project Structure
+
+```
 SecureVault/
+│
+├── app.py
+├── auth.py
+├── encryption.py
+├── hashing.py
+├── database.py
+├── models.py
+├── requirements.txt
+├── README.md
+│
+├── templates/
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   ├── dashboard.html
+│   ├── encrypt.html
+│   ├── decrypt.html
+│   ├── verify.html
+│   └── history.html
 │
 ├── static/
 │   ├── css/
-│   │   └── style.css            # Dark theme styles (glassmorphism, alerts, neon glows)
-│   └── js/
-│       └── main.js             # Drag-and-drop bindings, AJAX uploads & progress bars
+│   ├── js/
+│   └── images/
 │
-├── templates/
-│   ├── base.html                # Master layout (sidebar, alerts, assets setup)
-│   ├── index.html               # Features overview and landing screen
-│   ├── login.html               # Agent access portal
-│   ├── register.html            # Operative registry card
-│   ├── dashboard.html           # Live control panel, storage bar, recent events
-│   ├── encrypt.html             # Encryption panel (AES-256) and download links
-│   ├── decrypt.html             # Decryption panel (in-memory bytes processing)
-│   ├── verify.html              # SHA-256 baseline database and integrity checker
-│   └── history.html             # Audit log table, filters, CSV exporter, delete hooks
-│
-├── uploads/                     # Server storage directory for encrypted files
-│                                # (Files saved securely as <history_id>.enc)
-│
-├── app.py                       # Main Flask routing engine and upload configuration
-├── auth.py                      # Flask Blueprints and session authentication
-├── encryption.py                # AES-256-CBC and PBKDF2HMAC cryptographic routines
-├── hashing.py                   # SHA-256 hash generator and verification rules
-├── database.py                  # SQLite connection factory & tables schema builder
-├── models.py                    # Database query commands (User, History, Integrity)
-├── requirements.txt             # Python dependency packages
-└── README.md                    # Main product guide documentation
+└── database.db
 ```
 
 ---
 
-## 🚀 Getting Started
+# ⚙️ Installation
 
-### 📋 Prerequisites
-Ensure you have **Python 3.7+** installed. You can check your version using:
+Clone the repository:
+
 ```bash
-python --version
+git clone https://github.com/yourusername/SecureVault.git
 ```
 
-### 1️⃣ Install Dependencies
-Navigate to the project root directory and install dependencies:
+Open the project:
+
+```bash
+cd SecureVault
+```
+
+Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2️⃣ Run the Application
-Start the Flask local development server:
+Run the application:
+
 ```bash
 python app.py
 ```
 
-### 3️⃣ Access Web Portal
-Open your web browser and navigate to:
-```text
-http://127.0.0.1:5000/
+Visit:
+
+```
+http://127.0.0.1:5000
 ```
 
 ---
 
-## 🔒 Cryptographic Implementation Notes
+# 🚀 How to Use
 
-### 🛠️ Key Derivation & AES Encryption
-Each file is encrypted with a distinct key, preventing key reuse attacks:
-1. When a file is uploaded, a random **16-byte Salt** and a random **16-byte Initialization Vector (IV)** are generated using `os.urandom(16)`.
-2. A 256-bit AES key is derived from the user-entered password and the salt using **PBKDF2HMAC** with **SHA-256** and **100,000 iterations**.
-3. Plaintext file bytes are padded using **PKCS7** block padding.
-4. The data is encrypted using **AES-256-CBC** mode.
-5. The final encrypted file output layout is: `[16-byte Salt] + [16-byte IV] + [Ciphertext]`.
+## Register
+Create a user account.
 
-### 🔓 Decryption & Padding Check
-1. The salt and IV are parsed from the header (first 32 bytes).
-2. The key is derived using the user-supplied password and the extracted salt.
-3. The ciphertext is decrypted using the derived key and IV under AES-256-CBC.
-4. Unpadding is performed. If the password is wrong, PKCS7 padding verification will throw an error, which the backend catches to safely report `"Decryption failed. Invalid password or corrupted payload."`
+## Login
+Sign in securely.
+
+## Encrypt
+Upload a file and provide a password to encrypt it.
+
+## Decrypt
+Upload the encrypted file and enter the correct password to recover the original file.
+
+## Verify Integrity
+Upload a file to generate or compare its SHA-256 hash and determine whether it has been modified.
 
 ---
 
-## 🛡️ Web Security Safeguards
+# 📸 Screenshots
 
-- **No Plaintext Key Storage**: Encryption keys are calculated in-memory and discarded. Passwords are never sent to or saved on the server.
-- **Path Traversal Shield**: Filenames are strictly sanitized using `werkzeug.utils.secure_filename` to prevent directory escape attacks.
-- **Upload File Limits**: File uploads are restricted to a maximum size of 50MB by configuring `MAX_CONTENT_LENGTH`.
-- **Protected Downloads**: Downloads of server-stored encrypted files check the authenticated session `user_id` to prevent unauthorized file access.
-- **Database Injection Safeguards**: All database queries are executed using parameterized SQL statements in `sqlite3` to prevent SQL Injection.
+Add screenshots in:
+
+```
+screenshots/
+├── home.png
+├── login.png
+├── dashboard.png
+├── encrypt.png
+├── decrypt.png
+├── verify.png
+└── history.png
+```
+
+---
+
+# 🔒 Security Features
+
+- AES-256 File Encryption
+- SHA-256 Integrity Verification
+- Password Hashing
+- Secure Session Management
+- File Validation
+- Upload Restrictions
+- Error Handling
+
+---
+
+# 📈 Future Improvements
+
+- Multi-user file sharing
+- Email verification
+- Two-factor authentication (2FA)
+- Secure cloud storage
+- PDF report generation
+- Audit logs
+- Docker deployment
+- Admin dashboard
+- Role-based access control
+- Key management system
+
+---
+
+# 🎯 Learning Outcomes
+
+This project demonstrates practical knowledge of:
+
+- Cryptography
+- File Encryption
+- Hash Functions
+- Authentication
+- Secure File Handling
+- Database Integration
+- Flask Web Development
+- Cybersecurity Best Practices
+
+---
+
+# ⚠️ Disclaimer
+
+This project is intended for educational purposes and authorized use only. Users are responsible for complying with applicable laws and organizational policies when handling sensitive data.
+
+---
+
+# 👨‍💻 Author
+
+**Aashish S**
+
+Bachelor of Engineering (Computer Science)
+
+Networking & Cybersecurity Enthusiast
+
+---
+
+# 📄 License
+
+This project is licensed under the MIT License.
